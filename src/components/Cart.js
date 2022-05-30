@@ -1,32 +1,16 @@
 import Items from "./Items";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 import Form from "./Form";
 
-const ALLITEMS = [
-  {
-    id: nanoid(),
-    name: "Banana",
-    pricePerItem: 0.5,
-    amount: 0,
-  },
-
-  {
-    id: nanoid(),
-    name: "Apples",
-    pricePerItem: 0.6,
-    amount: 0,
-  },
-
-  {
-    id: nanoid(),
-    name: "Avocado",
-    pricePerItem: 1.9,
-    amount: 0,
-  },
-];
 export default function Cart() {
-  const [items, setItems] = useState(ALLITEMS);
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    const shoppingCart = localStorage.getItem("shopping-cart");
+    if (shoppingCart) {
+      setItems(JSON.parse(shoppingCart));
+    }
+  }, []);
   const totalPrice = items.reduce(
     (sum, item) =>
       Math.round((sum + item.pricePerItem * item.amount) * 100) / 100,
@@ -37,6 +21,7 @@ export default function Cart() {
     console.log(id);
     const updatedItems = items.filter((item) => !(item.id === id));
     setItems(updatedItems);
+    localStorage.setItem("shopping-cart", JSON.stringify(updatedItems));
   }
   function addItem(itemName, itemPrice) {
     const newItemObject = {
@@ -47,6 +32,10 @@ export default function Cart() {
       amount: 0,
     };
     setItems([...items, newItemObject]);
+    localStorage.setItem(
+      "shopping-cart",
+      JSON.stringify([...items, newItemObject])
+    );
   }
   function updateItems(id, amount) {
     const updatedItems = items.map((item) => {
@@ -60,6 +49,7 @@ export default function Cart() {
       }
     });
     setItems(updatedItems);
+    localStorage.setItem("shopping-cart", JSON.stringify(updatedItems));
   }
 
   return (
